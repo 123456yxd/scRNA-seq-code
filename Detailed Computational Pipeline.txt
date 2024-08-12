@@ -1,0 +1,331 @@
+Detailed Computational Pipeline
+
+Related to ¡°An advanced bacterial single-cell RNA-seq reveals biofilm heterogeneity¡±
+
+Dependencies:
+python 2.7.15
+fastqc (v0.11.9)
+cutadapt (v1.18)
+umi_tools
+featureCounts (v2.0.6)
+bwa (0.7.17-r1198)
+
+Correlation analysis between different libraries
+1.The bulk RNA-seq clean data reads were mapped to the E.coli MG1655 k12 genome (EnsemblBacteria Taxonomy ID: 511145) using the BWA aligner software (v0.7.17-r1188, https://github.com/lh3/bwa.git). Converting sam files to bam files using samtool (v1.9). The mapping results were counted by featureCounts (v2.0.1, https://github.com/topics/featurecounts) to generate expression results. The codes were:
+      $bwa mem Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa {sample}_R1.fq.gz  {sample}_R2.fq.gz > {sample}.sam
+      $samtools_0.1.18 view -Sb {sample}.sam > {sample}.bam
+      $featureCounts -T 6 -t exon -g gene_id -a Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.46.gtf -o {sample}.txt  {sample}.bam
+
+2.Single-cell sequencing data were combined with the UMI counts of all cells. The Pearson correlation coefficient (r) of UMI counts per gene (log2 UMIs) among RiboD-PETRI data and the reads per gene (log2 reads) of bulk RNA-seq data was calculated for common genes, excluding those with zero counts in either library. The Pearson correlation coefficient (r) of UMI counts per gene (log2 UMIs) among different RiboD-PETRI datas were calculated for common genes, excluding those with zero counts in either library.
+The codes were :
+      >f1<-read.table("{sample}1 vs {sample}2.txt")
+      >f2<-f1 + 1
+      >f3<-log2(f2)
+      >plot(f3[,1],f3[,2],xlab='{sample}1',ylab='{sample}2',las=1,mgp=c(1.5,0.5,0),cex.axis=0.8,mai=c(1,1,1,1))
+      >cor.test(f1.1.1[,1],f1.1.1[,2],method = "pearson")
+
+
+Codes of analysis RiboD-PETRI scRNA-seq sequencing data 
+1.Since both reads1 and reads2 files contain information about barcode and genome, in order to improve the data utilisation efficiency of reads1 and reads2 files, we pre-processed the reads1 and reads2 files respectively. We used codes to combine the reads1 and reads2 files of scRNA-seq clean data (such as: "{sample}_R1.fq.gz" and "{sample}_R2.fq.gz") to mention barcode sequences and genome sequences, respectively, and processed them into four fastq files for downstream splitting of barcode and comparison processes. Make sure all fastq files have names in the form: {sample name}_{S#}_L00{#}_R1_001.fastq.gz , {sample name}_{S#}_L00{#}_R2_001.fastq.gz , {sample name}B_{S#}_L00{#}_R1_001.fastq.gz and {sample name}B_{S#}_L00{#}_R2_001.fastq.gz. 
+The codes are: 
+      $cutadapt -g NNNNNNNNAGAATACACGACGCTCTTCCGATCT -o r1.fastq {sample}_R1.fq.gz
+      $cutadapt -g NNNNNNNNAGAATACACGACGCTCTTCCGATCT -o r2.fastq {sample}_R2.fq.gz
+      $cat r1.fastq | seqkit subseq -r 1:85 > {sample}_S5_L001_R1_001.fastq
+      $cat r2.fastq | seqkit subseq -r 80:100 > {sample}_S5_L001_R2_001.fastq
+      $cat r2.fastq | seqkit subseq -r 1:85 > {sample}B_S5_L001_R1_001.fastq
+      $cat r1.fastq | seqkit subseq -r 80:100 > {sample}B_S5_L001_R2_001.fastq
+      $gzip {sample}_S5_L001_R1_001.fastq
+      $gzip {sample}_S5_L001_R2_001.fastq
+      $gzip {sample}B_S5_L001_R1_001.fastq
+      $gzip {sample}B_S5_L001_R2_001.fastq
+2.Create a folder named demo and then in the demo folder create the folders with the sample names : {sample} and {sample}B. Put {sample}_S5_L001_R1_001.fastq and {sample}_S5_L001_R2_001.fastq in the folder named {sample}; Put {sample}B_S5_L001_R1_001.fastq and {sample}B_S5_L001_R2_001.fastq in the folder named {sample}B. 
+3.Then we performed single-cell sequencing data analyses according to the processes and scripts of previous articles "Prokaryotic single-cell RNA sequencing by in situ combinatorial indexing". The scripts folder was also been put in "scripts" folder which we made some modifications owing to differences in python versions. The data are all in one lane, so we removed the step of merging the lanes. Then in the "demo" folder, run the following codes: 
+	$python [path]/scripts/sc_pipeline_11.py {sample}_S5 {n_lanes} 
+	$python [path]/scripts/sc_pipeline_11.py {sample}B_S5 {n_lanes} 
+		# ¡°sample¡± is sample name and S number (eg first1000_S5)
+		# n_lanes is the number of sequencing lanes for analysis - if lanes are merged, then the single file should be names with suffix _L001_R1_001.fastq.gz and n_lanes set to 1. The script will count lanes from 1 to n_lanes so always start numbering from 1.
+		# sc_pipeline_11 runs fastqc, quality filter, and barcode demultiplexing
+For example: 
+	$python path_to/scripts/sc_pipeline_11.py 1214-7_S5 1
+	$python path_to/scripts/sc_pipeline_11.py 1214_7B_S5 1
+4.Look at {sample}_bc1_ReadsPerBC.eps, {sample}_bc1_kneePlot.eps, {sample}B_bc1_ReadsPerBC.eps and {sample}B_bc1_kneePlot.eps to determine number of BCs to include in further analysis. In the following analysis step, we only need to generate statistical tables for UMI, genes and cells, so we remove the step of synthesising the matrix. This script generates two files named as ("{sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt" and "{sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt").
+The codes were:
+SCRIPT: [path]/scripts/pipeline.sh {sample} {n_BCs} {fasta} {gtf} {custom_name} 
+		# n_BCs is number of BCs to include in further analysis (typically 10000-80000)
+		# fasta is location and name of fasta for alignment
+		# gtf is location and name of gtf for feature calling - see example.gtf for example format (specifically, gene names should be indicated by 'name=')
+		# Custom name is a new name for the sample, corresponding to maybe the gtf used or other specific input of the pipeline. For example, we might analyze the same cells by CDS or by exon and would indicate that in the custom name. Custom name can be the same as sample name if desired. 
+		# pipeline.sh includes a number of cleanup commands at the end. If interested in intermediate files, these can be easily commented out.
+For example: 
+	$sh ./scripts/pipeline.sh 1214_7 10000 Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.46.gtf 1214_7_CDS
+	$sh ./scripts/pipeline.sh 1214_7B 10000 Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.46.gtf 1214_7B_CDS
+
+5.The files ("{sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt" and "{sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt") obtained in step 4 are combined into a matrix containing UMI, gene and barcode information.
+The codes were: 
+      $cat {sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt {sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt  >  {sample}.txt
+      $sed -i "s/{sample}B/{sample}/g" {sample}.txt
+      $sed -i "s/Chromosome://g" {sample}.txt
+      $awk 'BEGIN{ FS=" ";OFS="+" }{ print $1,$2,$3 }' {sample}.txt > {sample}.2.txt
+      $cat {sample}.2.txt | sort | uniq > {sample}.3.txt
+      $awk 'BEGIN{ FS="+";OFS=" " }{ print $1,$3 }' {sample}.3.txt > {sample}.4.txt
+      $awk 'BEGIN{ FS=" ";OFS="+" }{ print $1,$2 }' {sample}.4.txt > {sample}.5.txt
+      $cat {sample}.5.txt | sort | uniq -c > {sample}.6.txt 
+      $awk 'BEGIN{ FS=" ";OFS="\t" }{ print $2,$3,$1 }' {sample}.6.txt > {sample}.7.txt
+      $awk 'BEGIN{ FS="+";OFS="\t" }{ print $1,$2,$3 }' {sample}.7.txt > {sample}.8.txt
+      $awk 'BEGIN{ FS="\t\t";OFS="\t" }{ print $1,$2,$3 }' {sample}.8.txt > {sample}.9.txt
+      $awk 'BEGIN{ FS="\t";OFS="+" }{ print $1,$2,$3 }' {sample}.9.txt > {sample}.10.txt
+      $sed -i '1i\cell+gene+count' {sample}.10.txt
+      $awk 'BEGIN{ FS="+";OFS="\t" }{ print $1,$2,$3 }' {sample}.10.txt > {sample}.11.txt
+      $awk 'BEGIN{ FS="\t";OFS="," }{ print $1,$2,$3 }' {sample}.11.txt > {sample}.12.csv
+>>>python
+>>>import pandas as pd
+>>>import numpy as np
+>>>table = pd.read_csv("{sample}.12.csv")
+>>>table=pd.pivot_table(table,index=["cell"],columns=["gene"],values=["count"],fill_value=0)
+>>>df = pd.DataFrame(table)
+>>>df.to_csv('{sample}.csv')
+6.Download "{sample}.csv", removed rows and columns that clearly not belong to cells and genes (such as "cell", "16" and so on.) , and convert it to "txt" format file, and then import it into Seurat v4.3.0 (https://satijalab.org/seurat/articles/get_started.html) for single-cell analysis.
+The Seurat codes were:     
+For Single-cell RiboD-PETRI data of E .coli biofilm: 
+	>library(SeuratObject)
+	>library(Seurat)
+	>library(patchwork)
+	>library(dplyr)
+	>library(harmony)
+	>Data1 <- read.table("F:/1214-7.txt", sep="\t")
+	>Data11 <- Data1[-1,-1]   
+	>colnames(Data11) <- Data1[1,-1]
+	>rownames(Data11) <- Data1[-1,1]
+	>Data2 <- read.table("F:/1214-8.txt", sep="\t")
+	>Data21 <- Data2[-1,-1]   
+	>colnames(Data21) <- Data2[1,-1]
+	>rownames(Data21) <- Data2[-1,1]
+	>ecoli24h_1 <- CreateSeuratObject(counts = t(Data11), project = "Data1", min.cells = 5)
+	>ecoli24h_1$stim <- "replicate1" 
+	>ecoli24h_1_1 <- subset(ecoli24h_1, subset = nFeature_RNA > 100 & nFeature_RNA < 2000)
+	>ecoli24h_1_2 <- NormalizeData(ecoli24h_1_1, verbose = FALSE)
+	>ecoli24h_1_3 <- FindVariableFeatures(ecoli24h_1_2, selection.method = "vst", nfeatures = 500)
+	>ecoli24h_2 <- CreateSeuratObject(counts = t(Data21), project = "Data2", min.cells = 5)
+	>ecoli24h_2$stim <- "replicate2"
+	>ecoli24h_2_1 <- subset(ecoli24h_2, subset = nFeature_RNA >100 & nFeature_RNA < 2000)
+	>ecoli24h_2_2 <- NormalizeData(ecoli24h_2_1, verbose = FALSE)
+	>ecoli24h_2_3 <- FindVariableFeatures(ecoli24h_2_2, selection.method = "vst", nfeatures = 500)
+	>biofilm.anchors <- FindIntegrationAnchors(object.list = list(ecoli24h_1_3, ecoli24h_2_3), dims = 1:20)
+	>biofilm.combined <- IntegrateData(anchorset = biofilm.anchors, dims = 1:20)
+	>VlnPlot(biofilm.combined, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2)
+	>DefaultAssay(biofilm.combined) <- 'integrated'
+	>biofilm.combined_1 <- ScaleData(biofilm.combined, verbose = FALSE)
+	>biofilm.combined_2 <- RunPCA(biofilm.combined_1, npcs = 30, verbose = FALSE)
+	>biofilm.combined_3 <- RunHarmony(biofilm.combined_2, group.by.vars = "orig.ident") 
+	>DimPlot(biofilm.combined_3, group.by=NULL,reduction = 'pca')
+	>biofilm.combined_4 <- RunUMAP(biofilm.combined_3, reduction = 'pca', dims = 1:20)
+	>biofilm.combined_5 <- FindNeighbors(biofilm.combined_4, reduction = 'pca', dims = 1:20)
+	>biofilm.combined_6 <- FindClusters(biofilm.combined_5, resolution = 0.3)
+	>DimPlot(biofilm.combined_6, reduction = 'umap', group.by = 'stim')
+	>DimPlot(biofilm.combined_6, reduction = 'umap', label = TRUE)
+	>pbmc.markers <- FindAllMarkers(biofilm.combined_6, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.2)
+	>FeaturePlot(biofilm.combined_6, features = c("b0833"), pt.size = 0.85)
+	>pbmc.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC) -> top10
+	>DoHeatmap(biofilm.combined_6, features = top10$gene) + NoLegend()
+	>FeaturePlot(biofilm.combined_6,features = c("nCount_RNA"), pt.size = 0.85)
+
+For Single-cell RiboD-PETRI data of E .coli 3h:
+	>Ecoli3h.data<-read.table("F:/0427-3.txt")
+	>Ecoli3h.data1 <- Ecoli3h.data[-1,-1]   
+	>colnames(Ecoli3h.data1) <- Ecoli3h.data[1,-1]
+	>rownames(Ecoli3h.data1) <- Ecoli3h.data[-1,1]
+	>Ecoli3h2 <- CreateSeuratObject(counts = t(Ecoli3h.data1), project = "3", min.cells = 1, min.features =1)
+	>Ecoli3h3 <- subset(Ecoli3h2, subset = nFeature_RNA >200 & nFeature_RNA < 5000)
+	>VlnPlot(Ecoli3h3, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2)
+	>plot2 <- FeatureScatter(Ecoli3h3, feature1 = "nCount_RNA", feature2 = "nFeature_RNA") 
+	>Ecoli3h4 <- NormalizeData(Ecoli3h3, normalization.method = "LogNormalize", scale.factor = 1e4)
+	>Ecoli3h5 <- FindVariableFeatures(Ecoli3h4, selection.method = 'vst', nfeatures = 500)
+	>Ecoli3h6 <- ScaleData(Ecoli3h5)   
+	>Ecoli3h7 <- RunPCA(Ecoli3h6,features = VariableFeatures(object = Ecoli3h6))# npcs = 100,
+	>Ecoli3h10 <- FindNeighbors(Ecoli3h7, dims = 1:6)
+	>Ecoli3h11 <- FindClusters(Ecoli3h10, resolution = 0.3)
+	>Ecoli3h <- RunUMAP(Ecoli3h11, dims = 1:6)
+	>DimPlot(Ecoli3h, reduction = 'umap', label = TRUE, pt.size = 0.2)
+	>DimPlot(Ecoli3h, reduction = 'umap', label = TRUE, pt.size = 0.5) 
+	>cluster1.markers  <-  FindMarkers(Ecoli3h , ident.1 = 0 , min.pct = 0)
+	>Ecoli3h.markers <- FindAllMarkers(Ecoli3h, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+	>FeaturePlot(Ecoli3h, features = c("b0833"))
+	>DimPlot(Ecoli3h, reduction = 'umap', label = TRUE, pt.size = 0.5) 
+	>FeaturePlot(Ecoli3h,features = c("nCount_RNA"), pt.size = 0.85)
+	>Ecoli3h.markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC) -> top10
+	>DoHeatmap(Ecoli3h, features = top10$gene) + NoLegend()
+
+For Single-cell RiboD-PETRI data of CC NA1000:
+	>CC.data <- read.table("F:/0129-3.txt", sep="\t")
+	>CC.data1 <- CC.data[-1,-1]   
+	>colnames(CC.data1) <- CC.data[1,-1]
+	>rownames(CC.data1) <- CC.data[-1,1]
+	>CC2 <- CreateSeuratObject(counts = t(CC.data1), project = "3", min.cells = 1, min.features =1)
+	>counts <- GetAssayData(object = CC2, slot = "counts")
+	>nonzero <- counts > 0
+	>keep_genes <- Matrix::rowSums(nonzero) >= 30
+	>filtered_counts <- counts[keep_genes, ]
+	>CC2 <- CreateSeuratObject(filtered_counts, meta.data = CC2@meta.data)
+	>CC3 <- subset(CC2, subset = nFeature_RNA >200& nFeature_RNA < 5000)##cell level
+	>VlnPlot(CC3, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2)
+	>CC4 <- NormalizeData(CC3, normalization.method = "LogNormalize", scale.factor = 1e4)
+	>CC5 <- FindVariableFeatures(CC4, selection.method = 'vst', nfeatures = 500)
+	>CC6 <- ScaleData(object = CC5)    
+	>CC7 <- RunPCA(CC6,features = VariableFeatures(object = CC11))# npcs = 100,
+	>DimPlot(CC7, group.by=NULL,reduction = 'pca')
+	>CC8 <- FindNeighbors(CC7, dims = 1:6)
+	>CC9 <- FindClusters(CC8, resolution = 0.4)
+	>CC <- RunUMAP(CC9, dims = 1:6)
+	>DimPlot(CC, reduction = 'umap', label = TRUE, pt.size = 0.8) 
+	>CC.markers <- FindAllMarkers(CC, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+CC.markers
+	>FeaturePlot(CC, features = c("CCNA-00671","CCNA-02395","CCNA-03761",                         "CCNA-02553","CCNA-03106","CCNA-00259","CCNA-02361","CCNA-01780","CCNA-00986", "CCNA-03402","CCNA-00996","CCNA-03119"),combine = TRUE)
+	>FeaturePlot(CC, features = c("nCount_RNA"), pt.size = 0.5)
+	>CC.markers %>% group_by(cluster) %>% top_n(n = 100, wt = avg_log2FC) -> top10
+	>CC.markers-> top10
+	>CC@assays$RNA@scale.data <- scale(CC@assays$RNA@data, scale = TRUE)
+	>DoHeatmap(CC, features = top10$gene,size = 5, angle = -50, hjust=0.8,slot = "scale.data")+ NoLegend()
+
+For Single-cell RiboD-PETRI data of Staphylococcus aureus:
+	>SA.data <- read.table("F:/0609-7.txt", sep="\t")
+	>SA.data1 <- SA.data[-1,-1]   
+	>colnames(SA.data1) <- SA.data[1,-1]
+	>rownames(SA.data1) <- SA.data[-1,1]
+	>SA2 <- CreateSeuratObject(counts = t(SA.data1), project = "3", min.cells = 1, min.features =1)
+	>counts <- GetAssayData(object = SA2, slot = "counts")
+	>nonzero <- counts > 0
+	>keep_genes <- Matrix::rowSums(nonzero) >= 30
+	>filtered_counts <- counts[keep_genes, ]
+	>SA2 <- CreateSeuratObject(filtered_counts, meta.data = SA2@meta.data)
+	>SA2 <- subset(SA2,subset = nFeature_RNA> 15 & nFeature_RNA < 1000)
+	>VlnPlot(SA2, features = c("nFeature_RNA", "nCount_RNA"), ncol = 2)
+	>SA3 <- NormalizeData(SA2, normalization.method = "LogNormalize", scale.factor = 1e4)
+	>SA4 <- FindVariableFeatures(SA3, selection.method = 'vst', nfeatures = 500)
+	>SA5 <- ScaleData(object = SA4) 
+	>SA6 <- RunPCA(SA5,features = VariableFeatures(object = SA5))
+	>DimPlot(SA6, reduction = 'pca')
+	>DimHeatmap(SA6, dims = 1:9, cells = 500, balanced = TRUE)
+	>SA7 <- FindNeighbors(SA6, dims = 1:6)
+	>SA8 <- FindClusters(SA7, resolution = 0.4)
+	>SA <- RunUMAP(SA8, dims = 1:6)
+	>DimPlot(SA, reduction = 'umap', label = TRUE, pt.size = 0.5) 
+	>FeaturePlot(SA,features = c("nCount_RNA"), pt.size = 0.85)
+	>SA.markers <- FindAllMarkers(SA, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+	>FeaturePlot(SA, features = c("KQ76-08605","KQ76-06280","KQ76-05040","KQ76-10515","KQ76-10520","KQ76-00870",
+"KQ76-03955","KQ76-03895","KQ76-04970","KQ76-13335","KQ76-00740","KQ76-11725"))
+	>FeaturePlot(SA, features = c("KQ76-11040","KQ76-13335"))
+	>SA.markers %>% group_by(cluster) %>% top_n(n = 100, wt = avg_log2FC) -> top10
+	>SA.markers-> top10
+	>SA@assays$RNA@scale.data <- scale(SA@assays$RNA@data, scale = TRUE)
+	>DoHeatmap(SA, features = top10$gene,size = 0.5, angle = -50, hjust=0.8,slot = "scale.data")+ NoLegend()
+
+7.Pathway enrichment analysis of marker gene, we used the R package clusterProfiler{Yu, 2012 #50}. The marker genes were screened by logFC > 0.2, pvalue < 0.001.
+	>library("clusterProfiler")
+	>library(org.EcK12.eg.db)
+	>library(R.utils)
+	>R.utils::setOption("clusterProfiler.download.method",'auto')
+	>Tn2<-read.table("F:/3h-KEGG-p0.001.txt")
+	>Tn5<-Tn2[,1]
+	>kegg <- enrichKEGG(
+ 	 	gene = Tn5, 
+  		organism = 'eco', 
+  		pAdjustMethod = 'fdr', 
+  		pvalueCutoff = 0.2, 
+  		qvalueCutoff = 0.2)
+	>barplot(kegg, color = "pvalue")
+	>write.table(kegg, 'F:/Bioinformatics/1.txt',sep = '\t', quote = FALSE, row.names = FALSE)
+	>Tn2<-read.table("F:/24h GO p0.001.txt")
+	>Tn5<-Tn2[,1]
+	>ego <- enrichGO(
+ 	> gene          = Tn5,
+  	>keyType = "ENTREZID",
+		OrgDb         = org.EcK12.eg.db,
+  		ont           = "ALL",
+  		pAdjustMethod = "BH",
+  		pvalueCutoff  = 0.378,
+  		qvalueCutoff  = 0.378,
+  		readable      = TRUE)
+	>barplot(ego,color="pvalue",showCategory = 2)
+	>write.table(ego, 'F:/Bioinformatics/2.txt',sep = '\t', quote = FALSE, row.names = FALSE)
+
+RiboD-PETRI data mRNA / total RNA Ratio
+1.Since the reads1 and reads2 files contain different information, we cut the reads1 and reads2 files separately in order to improve the efficiency of data utilisation. Firstly, we removed the barcodes sequence contained in the front, and the last ten bases to remove the interference, and kept only 20 bases for mapping. The codes used in python were:
+	$zcat 0225-6_R1.fq.gz | seqkit grep -s -i -p ACACGACGCTCTTCCGA > r1.bc3.fastq
+	$cat r1.bc3.fastq | seqkit grep -s -i -p GGTCCTTGGCTTCGC > r1.bc32.fastq
+	$cat r1.bc32.fastq | seqkit grep -s -i -p CCTCCTACGCCAGA  > r1.bc321.fastq
+	$zcat 0225-6_R2.fq.gz | seqkit grep -s -i -p ACACGACGCTCTTCCGA > r2.bc3.fastq
+	$cat r2.bc3.fastq | seqkit grep -s -i -p GGTCCTTGGCTTCGC > r2.bc32.fastq
+	$cat r2.bc32.fastq | seqkit grep -s -i -p CCTCCTACGCCAGA  > r2.bc321.fastq
+	$cutadapt -u 120 -o r2.tirmed.fastq  r2.bc321.fastq
+	$cutadapt -u -10 -o r2.tirmed2.fastq  r2.tirmed.fastq
+	$cutadapt -u 120 -o r1.tirmed.fastq  r1.bc321.fastq
+	$cutadapt -u -10 -o r1.tirmed2.fastq  r1.tirmed.fastq
+
+2. We then mapped the reads1 data and reads2 data of different species to the corresponding reference genomes. Then we can get the mapping result of reads1 and reads2 data for the following mRNA / total RNA reads ratio analysis.
+For E.coli MG1655 K12:
+	$bwa aln Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz  {sample}.R1.fq > {sample}.r1.sai
+	$bwa samse -f {sample}.r1.sam Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz  {sample}.r1.sai {sample}.R1.fq
+	$samtools_0.1.18 view -Sb {sample}.r1.sam > {sample}.r1.bam
+	$featureCounts -T 6 -t transcript -g gene_id -a Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.46.gtf -o {sample}.r1.txt {sample}.r1.bam
+
+	$bwa aln Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz  RNA-seq/{sample}.R2.fq > {sample}.r2.sai
+	$bwa samse -f {sample}.r2.sam Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.toplevel.fa.gz  {sample}.r2.sai {sample}.R2.fq
+	$samtools_0.1.18 view -Sb {sample}.r2.sam > {sample}.r2.bam
+	$featureCounts -T 6 -t transcript -g gene_id -a Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.46.gtf -o {sample}.r2.txt {sample}.r2.bam
+
+For Staphylococcus aureus 25923:
+	$bwa aln SA_25923.fasta {sample}.R1.fq > {sample}.r1.sai
+	$bwa samse -f {sample}.r1.sam SA_25923.fasta {sample}.r1.sai {sample}.R1.fq
+	$samtools_0.1.18 view -Sb {sample}.r1.sam > {sample}.r1.bam
+	$featureCounts -T 6 -t transcript -g gene_id -a SA_25923.gtf -o {sample}.r1.txt {sample}.r1.bam
+
+	$bwa aln SA_25923.fasta {sample}.R2.fq > {sample}.r2.sai
+	$bwa samse -f {sample}.r2.sam SA_25923.fasta {sample}.r2.sai {sample}.R2.fq
+	$samtools_0.1.18 view -Sb {sample}.r2.sam > {sample}.r2.bam
+	$featureCounts -T 6 -t transcript -g gene_id -a SA_25923.gtf -o {sample}.r2.txt {sample}.r2.bam
+
+For Caulobacter crescentus NA1000:
+	$bwa aln NA1000.fa.gz r1.tirmed2.fastq > 0129-3.bc123.r1.sai
+	$bwa samse -f 0129-3.bc123.r1.sam NA1000.fa.gz 0129-3.bc123.r1.sai r1.tirmed2.fastq
+	$samtools_0.1.18 view -Sb 0129-3.bc123.r1.sam > 0129-3.bc123.r1.bam
+	$featureCounts -T 6 -t exon -g gene_id -a NA1000.gtf -o 0129-3.bc123.r1.txt  0129-3.bc123.r1.bam
+	$bwa aln NA1000.fa.gz r2.tirmed2.fastq > 0129-3.bc123.r2.sai
+	$bwa samse -f 0129-3.bc123.r2.sam NA1000.fa.gz 0129-3.bc123.r2.sai r2.tirmed2.fastq
+	$samtools_0.1.18 view -Sb 0129-3.bc123.r2.sam > 0129-3.bc123.r2.bam
+	$featureCounts -T 6 -t exon -g gene_id -a /NA1000.gtf -o 0129-3.bc123.r2.txt  0129-3.bc123.r2.bam
+
+Integration of samples to calculate UMI/cell and reads/cell
+1.For UMI/cell analysis, we used {sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt and {sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt to counted the number of UMIs in each cell using the following codes:
+	$cat {sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt {sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt  >  {sample}.txt
+	$sed -i "s/{sample}B/{sample}/g" {sample}.txt
+	$sed -i "s/Chromosome://g" {sample}.txt
+	$awk 'BEGIN{ FS=" ";OFS="+" }{ print $1,$2,$3}' {sample}.txt > {sample}.2.txt
+	$cat {sample}.2.txt | sort | uniq > {sample}.3.txt
+	$sed -i "/+VN+1.6/d" {sample}.3.txt
+	$sed -i "/+SN+Chro:LN/d" {sample}.3.txt
+	$sed -i "/+ID+bwa/d" {sample}.3.txt
+	$sed -i "/ambiguous/d" {sample}.3.txt
+	$awk 'BEGIN{ FS="+";OFS=" " }{ print $1}' {sample}.3.txt > {sample}.4.txt
+	$cat {sample}.4.txt | sort | uniq -c > {sample}.5.txt
+	$mv {sample}.5.txt {sample}.UMI-cell.txt
+
+2.For reads/cell analysis, we used {sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt and {sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt to counted the number of reads in each cell using the following codes:
+	$cat {sample}_CDS_v11_threshold_0_filtered_mapped_UMIs.txt             {sample}B_CDS_v11_threshold_0_filtered_mapped_UMIs.txt  >  {sample}.txt
+	$sed -i "s/{sample}B/{sample}/g" {sample}.txt
+	$sed -i "s/Chromosome://g" {sample}.txt
+	$awk 'BEGIN{ FS=" ";OFS="+" }{ print $1,$2,$3,$4}' {sample}.txt > {sample}.2.txt
+	$sed -i "/+VN+1.6/d" {sample}.2.txt
+	$sed -i "/+SN+Chro:LN/d" {sample}.2.txt
+	$sed -i "/+ID+bwa/d" {sample}.2.txt
+	$sed -i "/ambiguous/d" {sample}.2.txt
+	$awk 'BEGIN{ FS="+";OFS=" " }{ print $1,$4}' {sample}.2.txt > {sample}.3.txt
+	$awk '{sum[$1]+=$2}END{for(i in sum)print i" "sum[i]}' {sample}.3.txt > {sample}.4.txt
+	$mv {sample}.4.txt {sample}.reads-cell.txt
+
+Integration of samples to calculate gene/cell
+1.For gene/cell analysis, we used UMIs per cell matrix ({sample}.UMI-cell.txt) to counted the number of genes in each cell using the following codes in R software:
+	>a<-read.table("{sample}.UMI-cell.txt")
+	>a1<-a[-1,-1]
+	>a1[a1 != 0] <- 1
+	>write.table(a1,"{sample}.gene-cell.xlsx",sep="\t", quote=F, row.names=T,col.names = T)
+
