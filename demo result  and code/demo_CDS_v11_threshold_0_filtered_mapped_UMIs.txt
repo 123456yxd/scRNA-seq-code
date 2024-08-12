@@ -1,0 +1,127 @@
+Cell Barcode	UMI	contig:gene	total_reads
+demo_bc1_40_bc2_35_bc3_28	ID	bwa	:PN	1
+demo_bc1_40_bc2_35_bc3_28	SN	Chro:LN	1
+demo_bc1_40_bc2_35_bc3_28	VN	1.6	:SO	1
+demo_bc1_41_bc2_52_bc3_90	ID	bwa	:PN	1
+demo_bc1_41_bc2_52_bc3_90	SN	Chro:LN	1
+demo_bc1_41_bc2_52_bc3_90	VN	1.6	:SO	1
+demo_bc1_41_bc2_21_bc3_33	ID	bwa	:PN	1
+demo_bc1_41_bc2_21_bc3_33	SN	Chro:LN	1
+demo_bc1_41_bc2_21_bc3_33	VN	1.6	:SO	1
+demo_bc1_44_bc2_93_bc3_20	ID	bwa	:PN	1
+demo_bc1_44_bc2_93_bc3_20	SN	Chro:LN	1
+demo_bc1_44_bc2_93_bc3_20	VN	1.6	:SO	1
+demo_bc1_28_bc2_27_bc3_22	ID	bwa	:PN	1
+demo_bc1_28_bc2_27_bc3_22	SN	Chro:LN	1
+demo_bc1_28_bc2_27_bc3_22	VN	1.6	:SO	1
+demo_bc1_79_bc2_88_bc3_52	ID	bwa	:PN	1
+demo_bc1_79_bc2_88_bc3_52	SN	Chro:LN	1
+demo_bc1_79_bc2_88_bc3_52	VN	1.6	:SO	1
+demo_bc1_43_bc2_28_bc3_1	ID	bwa	:PN	1
+demo_bc1_43_bc2_28_bc3_1	SN	Chro:LN	1
+demo_bc1_43_bc2_28_bc3_1	VN	1.6	:SO	1
+demo_bc1_56_bc2_12_bc3_35	ID	bwa	:PN	1
+demo_bc1_56_bc2_12_bc3_35	SN	Chro:LN	1
+demo_bc1_56_bc2_12_bc3_35	VN	1.6	:SO	1
+demo_bc1_95_bc2_26_bc3_57	ID	bwa	:PN	1
+demo_bc1_95_bc2_26_bc3_57	SN	Chro:LN	1
+demo_bc1_95_bc2_26_bc3_57	VN	1.6	:SO	1
+demo_bc1_36_bc2_35_bc3_52	ID	bwa	:PN	1
+demo_bc1_36_bc2_35_bc3_52	SN	Chro:LN	1
+demo_bc1_36_bc2_35_bc3_52	VN	1.6	:SO	1
+demo_bc1_16_bc2_39_bc3_14	ID	bwa	:PN	1
+demo_bc1_16_bc2_39_bc3_14	SN	Chro:LN	1
+demo_bc1_16_bc2_39_bc3_14	VN	1.6	:SO	1
+demo_bc1_50_bc2_95_bc3_77	ID	bwa	:PN	1
+demo_bc1_50_bc2_95_bc3_77	SN	Chro:LN	1
+demo_bc1_50_bc2_95_bc3_77	VN	1.6	:SO	1
+demo_bc1_28_bc2_30_bc3_93	ID	bwa	:PN	1
+demo_bc1_28_bc2_30_bc3_93	SN	Chro:LN	1
+demo_bc1_28_bc2_30_bc3_93	VN	1.6	:SO	1
+demo_bc1_75_bc2_43_bc3_16	ID	bwa	:PN	1
+demo_bc1_75_bc2_43_bc3_16	SN	Chro:LN	1
+demo_bc1_75_bc2_43_bc3_16	VN	1.6	:SO	1
+demo_bc1_67_bc2_24_bc3_55	ID	bwa	:PN	1
+demo_bc1_67_bc2_24_bc3_55	SN	Chro:LN	1
+demo_bc1_67_bc2_24_bc3_55	GTTTCCT	Chromosome:b1807	1
+demo_bc1_67_bc2_24_bc3_55	VN	1.6	:SO	1
+demo_bc1_38_bc2_50_bc3_64	ID	bwa	:PN	1
+demo_bc1_38_bc2_50_bc3_64	SN	Chro:LN	1
+demo_bc1_38_bc2_50_bc3_64	GGCGCCA	Chromosome:b4002	1
+demo_bc1_38_bc2_50_bc3_64	VN	1.6	:SO	1
+demo_bc1_6_bc2_86_bc3_51	ID	bwa	:PN	1
+demo_bc1_6_bc2_86_bc3_51	SN	Chro:LN	1
+demo_bc1_6_bc2_86_bc3_51	VN	1.6	:SO	1
+demo_bc1_31_bc2_43_bc3_2	ID	bwa	:PN	1
+demo_bc1_31_bc2_43_bc3_2	SN	Chro:LN	1
+demo_bc1_31_bc2_43_bc3_2	ATCGATT	Chromosome:b3714	1
+demo_bc1_31_bc2_43_bc3_2	VN	1.6	:SO	1
+demo_bc1_8_bc2_87_bc3_36	ID	bwa	:PN	1
+demo_bc1_8_bc2_87_bc3_36	SN	Chro:LN	1
+demo_bc1_8_bc2_87_bc3_36	VN	1.6	:SO	1
+demo_bc1_63_bc2_18_bc3_76	ID	bwa	:PN	1
+demo_bc1_63_bc2_18_bc3_76	SN	Chro:LN	1
+demo_bc1_63_bc2_18_bc3_76	VN	1.6	:SO	1
+demo_bc1_35_bc2_75_bc3_2	ID	bwa	:PN	1
+demo_bc1_35_bc2_75_bc3_2	SN	Chro:LN	1
+demo_bc1_35_bc2_75_bc3_2	VN	1.6	:SO	1
+demo_bc1_46_bc2_49_bc3_29	ID	bwa	:PN	1
+demo_bc1_46_bc2_49_bc3_29	SN	Chro:LN	1
+demo_bc1_46_bc2_49_bc3_29	TTACCAA	Chromosome:b0019	1
+demo_bc1_46_bc2_49_bc3_29	VN	1.6	:SO	1
+demo_bc1_88_bc2_20_bc3_48	ID	bwa	:PN	1
+demo_bc1_88_bc2_20_bc3_48	SN	Chro:LN	1
+demo_bc1_88_bc2_20_bc3_48	VN	1.6	:SO	1
+demo_bc1_1_bc2_35_bc3_68	ID	bwa	:PN	1
+demo_bc1_1_bc2_35_bc3_68	SN	Chro:LN	1
+demo_bc1_1_bc2_35_bc3_68	VN	1.6	:SO	1
+demo_bc1_17_bc2_48_bc3_18	ID	bwa	:PN	1
+demo_bc1_17_bc2_48_bc3_18	SN	Chro:LN	1
+demo_bc1_17_bc2_48_bc3_18	AGGGGGG	Chromosome:b2096	1
+demo_bc1_17_bc2_48_bc3_18	VN	1.6	:SO	1
+demo_bc1_22_bc2_74_bc3_22	ID	bwa	:PN	1
+demo_bc1_22_bc2_74_bc3_22	SN	Chro:LN	1
+demo_bc1_22_bc2_74_bc3_22	VN	1.6	:SO	1
+demo_bc1_50_bc2_63_bc3_91	ID	bwa	:PN	1
+demo_bc1_50_bc2_63_bc3_91	SN	Chro:LN	1
+demo_bc1_50_bc2_63_bc3_91	VN	1.6	:SO	1
+demo_bc1_45_bc2_35_bc3_82	ID	bwa	:PN	1
+demo_bc1_45_bc2_35_bc3_82	SN	Chro:LN	1
+demo_bc1_45_bc2_35_bc3_82	VN	1.6	:SO	1
+demo_bc1_35_bc2_39_bc3_28	ID	bwa	:PN	1
+demo_bc1_35_bc2_39_bc3_28	SN	Chro:LN	1
+demo_bc1_35_bc2_39_bc3_28	VN	1.6	:SO	1
+demo_bc1_37_bc2_49_bc3_1	ID	bwa	:PN	1
+demo_bc1_37_bc2_49_bc3_1	SN	Chro:LN	1
+demo_bc1_37_bc2_49_bc3_1	VN	1.6	:SO	1
+demo_bc1_81_bc2_46_bc3_12	ID	bwa	:PN	1
+demo_bc1_81_bc2_46_bc3_12	SN	Chro:LN	1
+demo_bc1_81_bc2_46_bc3_12	VN	1.6	:SO	1
+demo_bc1_14_bc2_48_bc3_12	ID	bwa	:PN	1
+demo_bc1_14_bc2_48_bc3_12	SN	Chro:LN	1
+demo_bc1_14_bc2_48_bc3_12	VN	1.6	:SO	1
+demo_bc1_83_bc2_20_bc3_22	ID	bwa	:PN	1
+demo_bc1_83_bc2_20_bc3_22	SN	Chro:LN	1
+demo_bc1_83_bc2_20_bc3_22	VN	1.6	:SO	1
+demo_bc1_42_bc2_13_bc3_46	ID	bwa	:PN	1
+demo_bc1_42_bc2_13_bc3_46	SN	Chro:LN	1
+demo_bc1_42_bc2_13_bc3_46	VN	1.6	:SO	1
+demo_bc1_8_bc2_53_bc3_80	ID	bwa	:PN	1
+demo_bc1_8_bc2_53_bc3_80	SN	Chro:LN	1
+demo_bc1_8_bc2_53_bc3_80	VN	1.6	:SO	1
+demo_bc1_11_bc2_82_bc3_23	ID	bwa	:PN	1
+demo_bc1_11_bc2_82_bc3_23	SN	Chro:LN	1
+demo_bc1_11_bc2_82_bc3_23	VN	1.6	:SO	1
+demo_bc1_66_bc2_61_bc3_19	ID	bwa	:PN	1
+demo_bc1_66_bc2_61_bc3_19	SN	Chro:LN	1
+demo_bc1_66_bc2_61_bc3_19	VN	1.6	:SO	1
+demo_bc1_62_bc2_9_bc3_61	ID	bwa	:PN	1
+demo_bc1_62_bc2_9_bc3_61	SN	Chro:LN	1
+demo_bc1_62_bc2_9_bc3_61	CGCCCCC	Chromosome:b1237	1
+demo_bc1_62_bc2_9_bc3_61	VN	1.6	:SO	1
+demo_bc1_28_bc2_88_bc3_52	ID	bwa	:PN	1
+demo_bc1_28_bc2_88_bc3_52	SN	Chro:LN	1
+demo_bc1_28_bc2_88_bc3_52	VN	1.6	:SO	1
+demo_bc1_2_bc2_24_bc3_55	ID	bwa	:PN	1
+demo_bc1_2_bc2_24_bc3_55	SN	Chro:LN	1
+demo_bc1_2_bc2_24_bc3_55	VN	1.6	:SO	1
